@@ -1,0 +1,89 @@
+# Domain sources: geo/geosite/<name>.list
+# IP sources: geo/geoip/<name>.list
+# Order here is also the generated rules order, after custom-rules.yaml.
+upstream:
+  repository: MetaCubeX/meta-rules-dat
+  ref: meta
+
+bundles:
+  ads:
+    behavior: domain
+    policy: REJECT
+    sources: [category-ads-all]
+  private:
+    behavior: domain
+    policy: DIRECT
+    sources: [private]
+  ai-cn:
+    behavior: domain
+    policy: DIRECT
+    sources: [category-ai-cn]
+  ai:
+    behavior: domain
+    policy: AI
+    sources: [category-ai-!cn]
+  telegram:
+    behavior: domain
+    policy: TELEGRAM
+    sources: [telegram]
+  telegramip:
+    behavior: ipcidr
+    policy: TELEGRAM
+    no-resolve: true
+    sources: [telegram]
+  google:
+    behavior: domain
+    policy: GOOGLE
+    sources: [google, google-cn, youtube]
+  netflix:
+    behavior: domain
+    policy: NETFLIX
+    sources: [netflix]
+  direct-services:
+    behavior: domain
+    policy: DIRECT
+    sources:
+      - microsoft@cn
+      - apple-cn
+      - bilibili
+      - category-games-cn
+      - category-games@cn
+  tracker:
+    behavior: domain
+    policy: DIRECT
+    sources: [tracker]
+  # Keep microsoft@cn above this: sharepoint.cn remains DIRECT.
+  onedrive:
+    behavior: domain
+    policy: PROXY
+    sources: [onedrive]
+  netflixip:
+    behavior: ipcidr
+    policy: NETFLIX
+    sources: [netflix]
+  proxy:
+    behavior: domain
+    policy: PROXY
+    sources:
+      - apple-tvplus
+      - disney
+      - hbo
+      - primevideo
+      - tiktok
+      - spotify
+      - category-games-!cn
+      - gfw
+      - geolocation-!cn
+      # Remove this entry to disable broad foreign TLD matching.
+      - tld-!cn
+  cn:
+    behavior: domain
+    policy: DIRECT
+    sources: [cn]
+  directip:
+    behavior: ipcidr
+    policy: DIRECT
+    no-resolve: true
+    sources: [private, cn]
+
+fallback: 漏网之鱼

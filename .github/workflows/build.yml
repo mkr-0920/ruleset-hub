@@ -1,0 +1,82 @@
+name: Build and release MRS
+
+on:
+  schedule:
+    # 00:00 UTC = 08:00 Asia/Shanghai. GitHub may delay scheduled runs.
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - 'config/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'requirements.txt'
+      - '.github/workflows/build.yml'
+  pull_request:
+    paths:
+      - 'config/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'requirements.txt'
+      - '.github/workflows/build.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrs-${{ github.event_name == 'pull_request' && github.ref || 'release' }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Test
+        run: python -m unittest discover -s tests -v
+      - name: Build and validate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/build.py
+      - name: Save validated assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: ruleset-assets
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ruleset-assets
+          path: dist
+      - name: Verify downloaded assets
+        working-directory: dist
+        run: sha256sum --check SHA256SUMS
+      - name: Update latest Release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if ! gh release view latest >/dev/null 2>&1; then
+            gh release create latest --target "$GITHUB_SHA" --title "Latest MRS rules" --latest --notes "Daily merged MRS rules. Source revisions and checksums are included in the assets."
+          fi
+          gh release upload latest dist/*.mrs dist/*.list dist/*.yaml dist/SHA256SUMS --clobber
+          gh release upload latest dist/manifest.json --clobber
+          gh release edit latest --latest --title "Latest MRS rules"

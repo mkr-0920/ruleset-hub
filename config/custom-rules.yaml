@@ -1,0 +1,12 @@
+# Highest priority; preserve order, especially HOME before 010920.xyz.
+rules:
+  - DOMAIN,navidrome.010920.xyz,HOME
+  - IP-CIDR,192.168.1.0/24,HOME
+  - IP-CIDR,68.68.248.110/32,DIRECT
+  - DOMAIN-SUFFIX,010920.xyz,DIRECT
+  - DOMAIN-SUFFIX,lpgpt.us,DIRECT
+  - DOMAIN-SUFFIX,mvsep.com,AI
+  - DOMAIN,anyrouter.top,AI
+  - DOMAIN,clash.razord.top,DIRECT
+  - DOMAIN,yacd.haishan.me,DIRECT
+  - DOMAIN-SUFFIX,yahoo.com,PROXY
