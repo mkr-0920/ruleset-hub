@@ -42,7 +42,7 @@ class RulesetTests(unittest.TestCase):
     def test_provider_subscription_contract(self):
         validate_config(self.config, self.custom)
         providers, _ = generate_config(self.config, self.custom, "owner/ruleset-hub")
-        self.assertEqual(len(providers["rule-providers"]), 15)
+        self.assertEqual(len(providers["rule-providers"]), 17)
         self.assertEqual(providers["rule-providers"]["private"], {
             "type": "http", "behavior": "domain", "format": "mrs",
             "path": "./ruleset/private.mrs",
@@ -62,6 +62,12 @@ class RulesetTests(unittest.TestCase):
             ("RULE-SET,ai,AI", "RULE-SET,google,GOOGLE"),
             ("RULE-SET,netflix,NETFLIX", "RULE-SET,proxy,PROXY"),
             ("RULE-SET,netflixip,NETFLIX", "RULE-SET,proxy,PROXY"),
+            ("RULE-SET,netflix,NETFLIX", "RULE-SET,streaming,STREAMING"),
+            ("RULE-SET,netflixip,NETFLIX", "RULE-SET,streaming,STREAMING"),
+            ("RULE-SET,ai,AI", "RULE-SET,social,SOCIAL"),
+            ("RULE-SET,google,GOOGLE", "RULE-SET,streaming,STREAMING"),
+            ("RULE-SET,social,SOCIAL", "RULE-SET,proxy,PROXY"),
+            ("RULE-SET,streaming,STREAMING", "RULE-SET,proxy,PROXY"),
             ("RULE-SET,direct-services,DIRECT", "RULE-SET,proxy,PROXY"),
             ("RULE-SET,direct-services,DIRECT", onedrive_rule),
             ("RULE-SET,ai,AI", onedrive_rule),

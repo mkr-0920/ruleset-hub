@@ -4,3 +4,8 @@ dist/
 __pycache__/
 *.py[cod]
 .venv/
+
+# Local client configurations
+/聚合订阅.yaml
+/百度代理.yaml
+/彩信代理.yaml

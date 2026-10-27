@@ -61,16 +61,18 @@ bundles:
     behavior: ipcidr
     policy: NETFLIX
     sources: [netflix]
+  social:
+    behavior: domain
+    policy: SOCIAL
+    sources: [twitter, instagram, facebook, tiktok]
+  streaming:
+    behavior: domain
+    policy: STREAMING
+    sources: [apple-tvplus, disney, hbo, primevideo, spotify]
   proxy:
     behavior: domain
     policy: PROXY
     sources:
-      - apple-tvplus
-      - disney
-      - hbo
-      - primevideo
-      - tiktok
-      - spotify
       - category-games-!cn
       - gfw
       - geolocation-!cn

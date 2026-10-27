@@ -1,6 +1,6 @@
 # ruleset-hub
 
-以 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `meta` 分支为唯一规则源，按个人策略合并，生成 Mihomo MRS 二进制规则。每天北京时间 **08:00** 自动构建并更新 GitHub **Release 附件**，固定标签为 `latest`。
+以 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `meta` 分支为唯一规则源，按个人策略合并，生成 Mihomo MRS 二进制规则。每天计划于北京时间 **08:17** 错峰触发构建并更新 GitHub **Release 附件**，固定标签为 `latest`；实际启动时间可能因 GitHub 调度而延迟。
 
 [最新 Release](https://github.com/mkr-0920/ruleset-hub/releases/tag/latest) · [完整订阅配置片段](https://github.com/mkr-0920/ruleset-hub/releases/download/latest/mihomo.yaml) · [构建状态](https://github.com/mkr-0920/ruleset-hub/actions/workflows/build.yml)
 
@@ -36,7 +36,7 @@ rules:
 
 下载 URL、文件名和 `latest` 标签始终保持固定。构建每天执行一次，客户端独立地按 `interval: 86400` 每 24 小时检查一次。首次下载需要配置中已有可用的 `PROXY` 策略组及代理节点。
 
-发布的配置片段不包含代理节点、代理组或 DNS。需要在现有配置中保留 `HOME`、`AI`、`TELEGRAM`、`GOOGLE`、`NETFLIX`、`PROXY`、`漏网之鱼` 策略组。`DIRECT`、`REJECT` 为内置策略。
+发布的配置片段不包含代理节点、代理组或 DNS。需要在现有配置中保留 `HOME`、`AI`、`TELEGRAM`、`GOOGLE`、`NETFLIX`、`SOCIAL`、`STREAMING`、`PROXY`、`漏网之鱼` 策略组。`DIRECT`、`REJECT` 为内置策略。
 
 ## 产物与优先级
 
@@ -56,7 +56,9 @@ rules:
 | `tracker.mrs` | domain | DIRECT | tracker |
 | `onedrive.mrs` | domain | PROXY | onedrive |
 | `netflixip.mrs` | ipcidr | NETFLIX | netflix |
-| `proxy.mrs` | domain | PROXY | apple-tvplus、disney、hbo、primevideo、tiktok、spotify、category-games-!cn、gfw、geolocation-!cn、tld-!cn |
+| `social.mrs` | domain | SOCIAL | twitter、instagram、facebook、tiktok |
+| `streaming.mrs` | domain | STREAMING | apple-tvplus、disney、hbo、primevideo、spotify |
+| `proxy.mrs` | domain | PROXY | category-games-!cn、gfw、geolocation-!cn、tld-!cn |
 | `cn.mrs` | domain | DIRECT | cn |
 | `directip.mrs` | ipcidr | DIRECT，no-resolve | private、cn |
 
@@ -72,6 +74,12 @@ rules:
 国内 AI 明确直连，位于国外 AI 之前；国外 AI 位于 Google 之前，避免 Gemini 被 Google 大集合覆盖。国内服务例外位于代理大盘之前，`cn` 国内大盘位于代理大盘之后。Netflix IP 沿用原配置，不添加 `no-resolve`。
 
 `tracker.mrs` 只控制 BT/PT Tracker 域名请求，Peer 下载连接仍按其他规则处理。`onedrive.mrs` 独立维护，默认沿用 PROXY；需要直连时，将 `config/bundles.yaml` 中 `onedrive.policy` 改成 `DIRECT`，下一次构建会同步生成分流配置。个人强制规则仍有最高优先级。
+
+`social.mrs` 覆盖 X/Twitter、Instagram、Facebook、TikTok，使用 SOCIAL 策略组；`streaming.mrs` 覆盖 Apple TV+、Disney+、Max/HBO、Prime Video、Spotify，使用 STREAMING 策略组。两者都在 PROXY 大盘之前匹配，Netflix 和 YouTube 分别保持 NETFLIX、GOOGLE 的优先级。
+
+三份本地配置中的 SOCIAL、STREAMING 均使用 `select` 手动选择具体节点，候选来自现有节点订阅。使用时在面板中选定适合账号地区或流媒体解锁的节点，并保持出口稳定。规则集合负责识别目标服务，节点的 IP 信誉与解锁能力由所选出口决定。
+
+新增集合后，先推送构建配置，等待 Actions 成功发布对应的 MRS，再加载引用这些新文件的客户端配置。
 
 ## 微软服务的分流建议
 
@@ -101,7 +109,7 @@ python scripts/build.py --repository owner/repo --mihomo /path/to/mihomo
 
 ## 构建与发布保障
 
-每次先解析上游提交 SHA，所有源文件都从同一提交下载。缺失、空白或非法来源直接使构建失败；先在临时目录完成 15 个 MRS 的转换、反解覆盖范围校验和 Mihomo 配置检查，成功后才替换本地 `dist/`。上游数据与最终文件的 SHA256、来源提交、条目数均记录在清单中。`count` 是合并文本条目数，`compiled_count` 是反解条目数；内核可能省略已被后缀覆盖的精确规则，两者可以不同。
+每次先解析上游提交 SHA，所有源文件都从同一提交下载。缺失、空白或非法来源直接使构建失败；先在临时目录完成 17 个 MRS 的转换、反解覆盖范围校验和 Mihomo 配置检查，成功后才替换本地 `dist/`。上游数据与最终文件的 SHA256、来源提交、条目数均记录在清单中。`count` 是合并文本条目数，`compiled_count` 是反解条目数；内核可能省略已被后缀覆盖的精确规则，两者可以不同。
 
 Release job 只在默认分支、且构建校验全部通过后运行；PR 仅验证，不发布。发布前再次核对产物 SHA256。使用同名附件覆盖，保持订阅地址稳定；构建失败不会上传，也不会删除既有 Release。附件逐个更新，`manifest.json` 最后上传，用于核对本批次版本。
 
