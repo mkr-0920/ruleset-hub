@@ -64,7 +64,7 @@ bundles:
   social:
     behavior: domain
     policy: SOCIAL
-    sources: [twitter, instagram, facebook, tiktok]
+    sources: [twitter, instagram, facebook, tiktok, linuxdo]
   streaming:
     behavior: domain
     policy: STREAMING

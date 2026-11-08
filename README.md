@@ -56,7 +56,7 @@ rules:
 | `tracker.mrs` | domain | DIRECT | tracker |
 | `onedrive.mrs` | domain | PROXY | onedrive |
 | `netflixip.mrs` | ipcidr | NETFLIX | netflix |
-| `social.mrs` | domain | SOCIAL | twitter、instagram、facebook、tiktok |
+| `social.mrs` | domain | SOCIAL | twitter、instagram、facebook、tiktok、linuxdo |
 | `streaming.mrs` | domain | STREAMING | apple-tvplus、disney、hbo、primevideo、spotify |
 | `proxy.mrs` | domain | PROXY | category-games-!cn、gfw、geolocation-!cn、tld-!cn |
 | `cn.mrs` | domain | DIRECT | cn |
@@ -75,7 +75,7 @@ rules:
 
 `tracker.mrs` 只控制 BT/PT Tracker 域名请求，Peer 下载连接仍按其他规则处理。`onedrive.mrs` 独立维护，默认沿用 PROXY；需要直连时，将 `config/bundles.yaml` 中 `onedrive.policy` 改成 `DIRECT`，下一次构建会同步生成分流配置。个人强制规则仍有最高优先级。
 
-`social.mrs` 覆盖 X/Twitter、Instagram、Facebook、TikTok，使用 SOCIAL 策略组；`streaming.mrs` 覆盖 Apple TV+、Disney+、Max/HBO、Prime Video、Spotify，使用 STREAMING 策略组。两者都在 PROXY 大盘之前匹配，Netflix 和 YouTube 分别保持 NETFLIX、GOOGLE 的优先级。
+`social.mrs` 覆盖 X/Twitter、Instagram、Facebook、TikTok、LINUX DO，使用 SOCIAL 策略组。LINUX DO 使用上游 `linuxdo` 集合，覆盖 `linux.do`、`ldstatic.com` 及其子域名。`streaming.mrs` 覆盖 Apple TV+、Disney+、Max/HBO、Prime Video、Spotify，使用 STREAMING 策略组。两者都在 PROXY 大盘之前匹配，Netflix 和 YouTube 分别保持 NETFLIX、GOOGLE 的优先级。
 
 三份本地配置中的 SOCIAL、STREAMING 均使用 `select` 手动选择具体节点，候选来自现有节点订阅。使用时在面板中选定适合账号地区或流媒体解锁的节点，并保持出口稳定。规则集合负责识别目标服务，节点的 IP 信誉与解锁能力由所选出口决定。
 
